@@ -74,14 +74,17 @@ export default function AdminDashboard() {
   const [selectedRoom, setSelectedRoom] = useState('')
   const [selectedRoomForModal, setSelectedRoomForModal] = useState<string | null>(null)
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
-  const currentTimeSlot = getCurrentTimeSlot() as typeof TIME_SLOTS[number]
-  const [selectedTimeSlot, setSelectedTimeSlot] = useState<typeof TIME_SLOTS[number]>(currentTimeSlot)
+  const [isClient, setIsClient] = useState(false)
+  const [selectedTimeSlot, setSelectedTimeSlot] = useState<typeof TIME_SLOTS[number]>('09:00-10:00')
 
-  // Set selectedDate on client to avoid hydration mismatch
+  // Set selectedDate and client flag on client to avoid hydration mismatch
   React.useEffect(() => {
+    setIsClient(true)
     if (selectedDate === null) {
       setSelectedDate(new Date())
     }
+    // Set current time slot after hydration
+    setSelectedTimeSlot(getCurrentTimeSlot() as typeof TIME_SLOTS[number])
   }, [selectedDate])
 
   // Helper to get next 7 weekdays dates as strings YYYY-MM-DD
@@ -294,7 +297,7 @@ const handleBookingSubmit = (data: { roomNumber: string; timeSlot: string; batch
               type="date"
               className="w-full p-2 rounded bg-white text-black"
               value={selectedDate ? selectedDate.toISOString().split('T')[0] : ''}
-              min={typeof window !== 'undefined' ? new Date().toISOString().split('T')[0] : ''}
+              min={isClient ? new Date().toISOString().split('T')[0] : ''}
               onChange={(e) => {
                 const date = new Date(e.target.value)
                 if (date.getDay() !== 0 && date.getDay() !== 6) {

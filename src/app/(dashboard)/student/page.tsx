@@ -3,7 +3,7 @@
 
 import { useQuery } from '@tanstack/react-query'
 import { motion } from 'framer-motion'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { format } from 'date-fns'
 import { getCurrentTimeSlot, TIME_SLOTS, type TimeSlot, isStaffRoom } from '@/lib/schedule-store'
 import { FloorView } from '@/components/ui/floor-view'
@@ -76,19 +76,26 @@ function transformScheduleData(schedule: DailySchedule, currentSlot: string): Fl
 }
 
 export default function StudentDashboard() {
-  const currentTimeSlot = getCurrentTimeSlot()
-  const [selectedDate, setSelectedDate] = useState(() => new Date())
-  const formattedDate = format(selectedDate, 'yyyy-MM-dd')
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null)
   const [selectedRoomForModal, setSelectedRoomForModal] = useState<string | null>(null)
   const [facultySearch, setFacultySearch] = useState('')
   const [facultyDepartment, setFacultyDepartment] = useState('')
-  const [selectedTimeSlot, setSelectedTimeSlot] = useState<TimeSlot>(currentTimeSlot as TimeSlot)
+  const [selectedTimeSlot, setSelectedTimeSlot] = useState<TimeSlot>('09:00-10:00')
+  
+  // Initialize date and time slot after hydration
+  useEffect(() => {
+    setSelectedDate(new Date())
+    setSelectedTimeSlot(getCurrentTimeSlot() as TimeSlot)
+  }, [])
+  
+  const formattedDate = selectedDate ? format(selectedDate, 'yyyy-MM-dd') : ''
 
   // Fetch schedule data with React Query
   const { data: scheduleData, error } = useQuery({
     queryKey: ['schedule', formattedDate],
     queryFn: () => fetchSchedule(formattedDate),
-    refetchInterval: 5000 // Refetch every 5 seconds
+    refetchInterval: 5000, // Refetch every 5 seconds
+    enabled: !!selectedDate // Only fetch when selectedDate is not null
   })
 
   if (error) {

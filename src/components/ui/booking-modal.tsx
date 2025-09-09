@@ -42,8 +42,9 @@ export function BookingModal({
   onSubmit,
   selectedRoom,
   isPending = false
-}: BookingModalProps) {
+: BookingModalProps) {
   const [currentStep, setCurrentStep] = useState(selectedRoom ? 1 : 0)
+  const [isClient, setIsClient] = useState(false)
   const [formData, setFormData] = useState({
     roomNumber: selectedRoom || '',
     timeSlot: '',
@@ -53,8 +54,9 @@ export function BookingModal({
     date: null as Date | null
   })
 
-  // Set date on client to avoid hydration mismatch
+  // Set date and client flag on client to avoid hydration mismatch
   React.useEffect(() => {
+    setIsClient(true)
     if (formData.date === null) {
       setFormData((prev) => ({ ...prev, date: new Date() }))
     }
@@ -136,7 +138,7 @@ export function BookingModal({
                 <input
                   id="date"
                   type="date"
-                  min={typeof window !== 'undefined' ? new Date().toISOString().split('T')[0] : ''}
+                  min={isClient ? new Date().toISOString().split('T')[0] : ''}
                   className="w-full p-2 rounded-md bg-white/10 border border-white/20 text-white"
                   value={formData.date instanceof Date ? formData.date.toISOString().split('T')[0] : formData.date || ''}
                   onChange={(e) => setFormData({ ...formData, date: new Date(e.target.value) })}
