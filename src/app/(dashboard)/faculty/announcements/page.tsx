@@ -82,12 +82,19 @@ export default function FacultyAnnouncementsPage() {
   const [replyContent, setReplyContent] = useState('')
   const [previousAnnouncements, setPreviousAnnouncements] = useState<Announcement[]>([])
   const [hasShownInitialLoad, setHasShownInitialLoad] = useState(false)
+  const [isClient, setIsClient] = useState(false)
 
   const { data: announcements = [], isLoading, error } = useQuery({
     queryKey: ['announcements'],
     queryFn: fetchAnnouncements,
     refetchInterval: 5000 // Poll every 5 seconds for real-time updates
   })
+
+  // Set current date after hydration
+  React.useEffect(() => {
+    setIsClient(true)
+    createForm.setValue('date', new Date().toISOString().split('T')[0])
+  }, [])
 
   // Show notifications for new announcements or replies
   React.useEffect(() => {
@@ -136,7 +143,7 @@ export default function FacultyAnnouncementsPage() {
     defaultValues: {
       title: '',
       description: '',
-      date: new Date().toISOString().split('T')[0]
+      date: ''
     }
   })
 
