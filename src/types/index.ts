@@ -5,10 +5,11 @@ export type RoomStatus = 'free' | 'occupied' | 'extra';
 export interface Booking {
   id: string;
   roomNumber: string;
-  date: string;
-  timeSlot: string;
+  date: string; // ISO date string in YYYY-MM-DD format
+  timeSlot: string; // e.g., "09:00-10:00"
   batchName: string;
-  lectureName: string;
+  teacherName?: string;
+  courseName?: string;
   status: RoomStatus;
 }
 

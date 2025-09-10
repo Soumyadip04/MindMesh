@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getScheduleStore, saveSchedule, TIME_SLOTS, type TimeSlot, getScheduleForDate, getMergedScheduleForDate, hasRecurringConflict, isStaffRoom } from '@/lib/schedule-store';
+import { TIME_SLOTS, type TimeSlot, getMergedScheduleForDate, addBooking, removeBooking } from '@/lib/schedule-store';
 
 // GET /api/schedule
 export async function GET(request: Request) {
@@ -32,19 +32,6 @@ export async function POST(request: Request) {
       );
     }
 
-    const bookingDate = new Date(date);
-
-    // Validate date
-    if (bookingDate < new Date() || bookingDate.getDay() === 0 || bookingDate.getDay() === 6) {
-      return NextResponse.json(
-        { error: 'Invalid booking date. Must be a future weekday' },
-        { status: 400 }
-      );
-    }
-
-    // Get schedule for the date
-    const scheduleForDate = getScheduleForDate(date);
-
     // Check if time slot is valid
     if (!TIME_SLOTS.includes(timeSlot as TimeSlot)) {
       return NextResponse.json(
@@ -55,51 +42,75 @@ export async function POST(request: Request) {
 
     const validTimeSlot = timeSlot as TimeSlot;
 
-    // Block if the room is a staff room
-    if (isStaffRoom(roomNumber)) {
-      return NextResponse.json(
-        { error: 'This room is reserved for Teachers Department CSE-AI' },
-        { status: 409 }
-      );
-    }
-
-    // Block if recurring regular class exists for this room and time on that weekday
-    if (hasRecurringConflict(date, roomNumber, validTimeSlot)) {
-      return NextResponse.json(
-        { error: 'Room is unavailable due to regular classes at this time' },
-        { status: 409 }
-      );
-    }
-
-    // Check if room is already booked for this date and time (ad-hoc bookings)
-    if (scheduleForDate[roomNumber]?.[validTimeSlot]) {
-      return NextResponse.json(
-        { error: 'Room is already booked for this time slot on the selected date' },
-        { status: 409 }
-      );
-    }
-
-    // Update the schedule with booking details
-    if (!scheduleForDate[roomNumber]) {
-      scheduleForDate[roomNumber] = {};
-    }
-    scheduleForDate[roomNumber][validTimeSlot] = {
+    // Attempt to add the booking using the centralized function
+    const result = addBooking(roomNumber, date, validTimeSlot, {
       batchName,
       teacherName,
       courseName
-    };
+    });
 
-    // Save the updated schedule
-    const fullSchedule = getScheduleStore();
-    fullSchedule.dates[date] = scheduleForDate;
-    saveSchedule(fullSchedule);
+    if (!result.success) {
+      return NextResponse.json(
+        { error: result.error },
+        { status: 409 }
+      );
+    }
 
     return NextResponse.json({
       success: true,
-      data: scheduleForDate[roomNumber]
+      data: {
+        bookingId: result.bookingId,
+        roomNumber,
+        timeSlot: validTimeSlot,
+        batchName,
+        teacherName,
+        courseName,
+        date
+      }
     });
   } catch (error) {
     console.error('Error processing booking:', error);
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
+  }
+}
+
+// DELETE /api/schedule
+export async function DELETE(request: Request) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const date = searchParams.get('date');
+    const roomNumber = searchParams.get('roomNumber');
+    const timeSlot = searchParams.get('timeSlot') as TimeSlot | null;
+
+    if (!date || !roomNumber || !timeSlot) {
+      return NextResponse.json(
+        { error: 'Missing required query params: date, roomNumber, timeSlot' },
+        { status: 400 }
+      );
+    }
+
+    // Validate time slot
+    if (!TIME_SLOTS.includes(timeSlot)) {
+      return NextResponse.json(
+        { error: 'Invalid time slot' },
+        { status: 400 }
+      );
+    }
+
+    const removed = removeBooking(date, roomNumber, timeSlot);
+    if (!removed) {
+      return NextResponse.json(
+        { error: 'Booking not found' },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error('Error removing booking:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

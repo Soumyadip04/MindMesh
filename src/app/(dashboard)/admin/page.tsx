@@ -9,6 +9,7 @@ import { useToast } from '@/components/ui/use-toast'
 import { DashboardStats } from '@/components/ui/dashboard-stats'
 import { FloorView } from '@/components/ui/floor-view'
 import { RoomBookingsModal } from '@/components/ui/room-bookings-modal'
+import { deleteBooking } from '@/lib/booking-utils'
 import type { Room, Floor } from '@/types/floor'
 
 // Fetch schedule data
@@ -236,6 +237,20 @@ export default function AdminDashboard() {
     }
   })
 
+  // Mutation for deleting a booking
+  const deleteMutation = useMutation({
+    mutationFn: async ({ roomNumber, date, timeSlot }: { roomNumber: string; date: string; timeSlot: string }) => {
+      await deleteBooking(roomNumber, date, timeSlot)
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['schedule'] })
+      toast({ title: 'Booking cancelled', description: 'The booking was deleted successfully.' })
+    },
+    onError: (error: Error) => {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' })
+    }
+  })
+
 const handleBookingSubmit = (data: { roomNumber: string; timeSlot: string; batchName: string; date: string | Date; teacherName?: string; courseName?: string }) => {
     const bookingData = {
       ...data,
@@ -247,6 +262,10 @@ const handleBookingSubmit = (data: { roomNumber: string; timeSlot: string; batch
   const handleRoomClick = (roomNumber: string) => {
     setSelectedRoom(roomNumber)
     setSelectedRoomForModal(roomNumber)
+  }
+
+  const handleDeleteBooking = async (roomNumber: string, date: string, timeSlot: string) => {
+    await deleteMutation.mutateAsync({ roomNumber, date, timeSlot })
   }
 
   if (!selectedSchedule || !stats || !selectedDate) {
@@ -345,6 +364,9 @@ const handleBookingSubmit = (data: { roomNumber: string; timeSlot: string; batch
             roomNumber={selectedRoomForModal}
             roomSchedule={selectedSchedule?.[selectedRoomForModal] || null}
             isStaffRoom={isStaffRoom(selectedRoomForModal)}
+            onDeleteBooking={handleDeleteBooking}
+            currentDate={selectedDateStr}
+            showDeleteButton={true}
           />
         )}
 

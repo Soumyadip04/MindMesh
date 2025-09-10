@@ -17,10 +17,12 @@ app.use(cookieParser())
 
 //routes import for default cases
 import userRouter from './routes/user.routes.js'
+import bookingRouter from './routes/booking.route.js'
 
 
 
 //routes declaration 
 app.use("/api/v1/users", userRouter)
+app.use("/api/v1/bookings", bookingRouter)
 
 export { app }

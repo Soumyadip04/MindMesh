@@ -13,6 +13,7 @@ export type TimeSlot = typeof TIME_SLOTS[number];
 
 // In-memory store for classroom schedules
 interface BookingDetails {
+  id?: string; // Unique booking ID
   batchName: string;
   teacherName?: string;
   courseName?: string;
@@ -367,4 +368,102 @@ export function hasRecurringConflict(date: string, roomNumber: string, timeSlot:
   const roomRecurring = recurringForWeekday[roomNumber];
   if (!roomRecurring) return false;
   return Boolean(roomRecurring[timeSlot]);
+}
+
+// Generate unique booking ID
+export function generateBookingId(): string {
+  return Date.now().toString(36) + Math.random().toString(36).substr(2);
+}
+
+// Add a new booking with validation
+export function addBooking(
+  roomNumber: string, 
+  date: string, 
+  timeSlot: TimeSlot, 
+  bookingDetails: Omit<BookingDetails, 'id'>
+): { success: boolean; error?: string; bookingId?: string } {
+  // Validate date
+  const bookingDate = new Date(date);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  
+  if (bookingDate < today || bookingDate.getDay() === 0 || bookingDate.getDay() === 6) {
+    return { success: false, error: 'Invalid booking date. Must be a future weekday' };
+  }
+
+  // Check for staff room
+  if (isStaffRoom(roomNumber)) {
+    return { success: false, error: 'This room is reserved for Teachers Department CSE-AI' };
+  }
+
+  // Check for recurring conflict
+  if (hasRecurringConflict(date, roomNumber, timeSlot)) {
+    return { success: false, error: 'Room is unavailable due to regular classes at this time' };
+  }
+
+  const schedule = getScheduleStore();
+  
+  // Initialize date and room if they don't exist
+  if (!schedule.dates[date]) {
+    schedule.dates[date] = {};
+  }
+  if (!schedule.dates[date][roomNumber]) {
+    schedule.dates[date][roomNumber] = {};
+  }
+
+  // Check if slot is already booked
+  if (schedule.dates[date][roomNumber][timeSlot]) {
+    return { success: false, error: 'Room is already booked for this time slot' };
+  }
+
+  // Add booking with unique ID
+  const bookingId = generateBookingId();
+  schedule.dates[date][roomNumber][timeSlot] = {
+    ...bookingDetails,
+    id: bookingId
+  };
+
+  saveSchedule(schedule);
+  return { success: true, bookingId };
+}
+
+// Remove a booking
+export function removeBooking(date: string, roomNumber: string, timeSlot: TimeSlot): boolean {
+  const schedule = getScheduleStore();
+  
+  if (schedule.dates[date]?.[roomNumber]?.[timeSlot]) {
+    delete schedule.dates[date][roomNumber][timeSlot];
+    saveSchedule(schedule);
+    return true;
+  }
+  
+  return false;
+}
+
+// Get all bookings for a specific date
+export function getBookingsForDate(date: string): Array<{
+  roomNumber: string;
+  timeSlot: TimeSlot;
+  booking: BookingDetails;
+}> {
+  const schedule = getMergedScheduleForDate(date);
+  const bookings: Array<{
+    roomNumber: string;
+    timeSlot: TimeSlot;
+    booking: BookingDetails;
+  }> = [];
+
+  Object.entries(schedule).forEach(([roomNumber, slots]) => {
+    Object.entries(slots).forEach(([timeSlot, booking]) => {
+      if (booking) {
+        bookings.push({
+          roomNumber,
+          timeSlot: timeSlot as TimeSlot,
+          booking
+        });
+      }
+    });
+  });
+
+  return bookings;
 }
