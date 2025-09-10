@@ -7,7 +7,7 @@ import { GraduationCap, BookOpen, Users, Calendar } from "lucide-react"
 
 export default function LoginPage() {
   return (
-    <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-blue-900 via-blue-800 to-cyan-900">
+    <div className="min-h-screen relative overflow-hidden bg-image-overlay" style={{ backgroundImage: 'url(/images/background.jpg)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }}>
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden">
         <motion.div

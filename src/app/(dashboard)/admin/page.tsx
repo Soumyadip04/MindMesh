@@ -32,7 +32,7 @@ interface BookingRequest {
 }
 
 async function bookClassroom({ roomNumber, timeSlot, batchName, date, teacherName, courseName }: BookingRequest) {
-  if (!date || (typeof date !== 'string' && !(date as any).toISOString)) {
+  if (!date || (typeof date !== 'string' && !(date instanceof Date && date.toISOString))) {
     throw new Error('Invalid date value provided for booking')
   }
   const dateString = typeof date === 'string' ? date : (date as Date).toISOString()
@@ -167,7 +167,7 @@ export default function AdminDashboard() {
 
         const isStaff = isStaffRoom(roomNumber)
         // Admin/faculty behavior: availability strictly for the selected time slot
-        const bookingForSelected = (roomSchedule as any)[selectedTimeSlot as string] || null
+        const bookingForSelected = (roomSchedule as Record<string, BookingDetails | null>)[selectedTimeSlot as string] || null
         const isOccupiedAtSelected = isStaff || Boolean(bookingForSelected)
 
         return {
@@ -183,9 +183,9 @@ export default function AdminDashboard() {
               }
             : bookingForSelected
               ? {
-                  batchName: (bookingForSelected as any).batchName,
-                  teacherName: (bookingForSelected as any).teacherName,
-                  courseName: (bookingForSelected as any).courseName,
+                  batchName: (bookingForSelected as BookingDetails).batchName,
+                  teacherName: (bookingForSelected as BookingDetails).teacherName,
+                  courseName: (bookingForSelected as BookingDetails).courseName,
                   timeSlot: '',
                   lectureName: 'Lecture'
                 }

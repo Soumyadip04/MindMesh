@@ -173,7 +173,7 @@ export function LoginForm() {
         className="text-center"
       >
         <p className="text-white/60 text-sm">
-          Don't have an account?{' '}
+          Don&apos;t have an account?{' '}
           <a href="/register" className="text-blue-300 hover:text-blue-200 transition-colors font-medium underline">
             Register here
           </a>

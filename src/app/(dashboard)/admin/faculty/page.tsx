@@ -15,7 +15,7 @@ function DashboardCard({
 }: { 
   title: string
   count: number
-  icon: any
+  icon: React.ComponentType<{ className?: string }>
   href: string
   color: string 
 }) {
@@ -80,7 +80,7 @@ export default function FacultyDashboard() {
   })
 
   const teacherNames = (teachers || []).map(t => t.name).filter(Boolean).slice(0, 6)
-  const subjectNames = (subjects || []).map((s: any) => s.name || s.code || s.title).filter(Boolean).slice(0, 8)
+  const subjectNames = (subjects || []).map((s: { name?: string; code?: string; title?: string }) => s.name || s.code || s.title).filter(Boolean).slice(0, 8)
   const roomNames = (rooms || []).map(r => r.roomNumber || r.name).filter(Boolean).slice(0, 8)
   const floorNames = (floors || []).map(f => (typeof f.number === 'number' ? `Floor ${f.number}` : (f.name || ''))).filter(Boolean).slice(0, 6)
 

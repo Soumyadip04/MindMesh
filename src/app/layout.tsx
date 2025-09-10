@@ -1,9 +1,7 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import { Providers } from "./providers";
 import { Toaster } from "@/components/ui/toaster";
 import "./globals.css";
-
 
 export const metadata: Metadata = {
   title: "Classroom Scheduler",
@@ -17,7 +15,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-  <body className="antialiased">
+      <body className="antialiased">
         <Providers>{children}</Providers>
         <Toaster />
       </body>

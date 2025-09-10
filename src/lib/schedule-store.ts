@@ -145,13 +145,13 @@ function coerceRegularClasses(raw: unknown): RegularClassesMap | null {
         out[dayNum][room] = {};
         Object.entries(slots || {}).forEach(([slot, booking]) => {
           if ((TIME_SLOTS as readonly string[]).includes(slot)) {
-            const b = booking as any;
+            const b = booking as Record<string, unknown>;
             const normalized: BookingDetails = {
-              batchName: b?.batchName ?? b?.batch_name ?? '',
-              teacherName: b?.teacherName ?? b?.teacher_name ?? b?.TeacherName,
-              courseName: b?.courseName ?? b?.course ?? b?.Course,
-              startTime: b?.startTime ?? b?.start_time,
-              endTime: b?.endTime ?? b?.end_time
+              batchName: (b?.batchName ?? b?.batch_name ?? '') as string,
+              teacherName: (b?.teacherName ?? b?.teacher_name ?? b?.TeacherName) as string | undefined,
+              courseName: (b?.courseName ?? b?.course ?? b?.Course) as string | undefined,
+              startTime: (b?.startTime ?? b?.start_time) as string | undefined,
+              endTime: (b?.endTime ?? b?.end_time) as string | undefined
             };
             (out[dayNum][room] as Partial<Record<TimeSlot, BookingDetails>>)[slot as TimeSlot] = normalized;
           }
@@ -187,7 +187,7 @@ const initializeSchedule = () => {
   const schedule: ScheduleStore = {
     dates: {
       [todayStr]: {
-        '101': {
+        'CSE-101': {
           '09:00-10:00': { batchName: 'CS2024A', teacherName: 'Dr. Sarah Johnson', courseName: 'CS101' },
           '10:00-11:00': { batchName: 'CS2024B', teacherName: 'Dr. Sarah Johnson', courseName: 'CS201' },
           '11:00-12:00': null,
@@ -196,7 +196,7 @@ const initializeSchedule = () => {
           '15:00-16:00': null,
           '16:00-17:00': null
         },
-        '102': {
+        'CSE-102': {
           '09:00-10:00': null,
           '10:00-11:00': { batchName: 'DS2024A', teacherName: 'Dr. Maria Garcia', courseName: 'DS101' },
           '11:00-12:00': { batchName: 'DS2024A', teacherName: 'Dr. Maria Garcia', courseName: 'DS201' },
@@ -205,7 +205,7 @@ const initializeSchedule = () => {
           '15:00-16:00': { batchName: 'WEB2024A', teacherName: 'Dr. Lisa Wang', courseName: 'WEB101' },
           '16:00-17:00': { batchName: 'WEB2024A', teacherName: 'Dr. Lisa Wang', courseName: 'WEB201' }
         },
-        '201': {
+        'CSE-201': {
           '09:00-10:00': { batchName: 'CS2024C', teacherName: 'Prof. David Thompson', courseName: 'SE101' },
           '10:00-11:00': { batchName: 'CS2024C', teacherName: 'Prof. David Thompson', courseName: 'SE201' },
           '11:00-12:00': null,
@@ -216,7 +216,7 @@ const initializeSchedule = () => {
         }
       },
       [tomorrowStr]: {
-        '101': {
+        'CSE-101': {
           '09:00-10:00': { batchName: 'CS2024B', teacherName: 'Dr. Sarah Johnson', courseName: 'CS301' },
           '10:00-11:00': null,
           '11:00-12:00': { batchName: 'CS2024A', teacherName: 'Dr. Emily Davis', courseName: 'DB101' },
@@ -225,7 +225,7 @@ const initializeSchedule = () => {
           '15:00-16:00': null,
           '16:00-17:00': { batchName: 'CS2024C', teacherName: 'Prof. James Wilson', courseName: 'CSEC101' }
         },
-        '102': {
+        'CSE-102': {
           '09:00-10:00': { batchName: 'MATH2024A', teacherName: 'Prof. Michael Chen', courseName: 'MATH101' },
           '10:00-11:00': { batchName: 'MATH2024A', teacherName: 'Prof. Michael Chen', courseName: 'STAT301' },
           '11:00-12:00': null,
@@ -234,7 +234,7 @@ const initializeSchedule = () => {
           '15:00-16:00': null,
           '16:00-17:00': { batchName: 'DS2024B', teacherName: 'Dr. Maria Garcia', courseName: 'DS301' }
         },
-        '201': {
+        'CSE-201': {
           '09:00-10:00': null,
           '10:00-11:00': { batchName: 'AI2024B', teacherName: 'Prof. Alex Rodriguez', courseName: 'AI301' },
           '11:00-12:00': { batchName: 'AI2024B', teacherName: 'Prof. Alex Rodriguez', courseName: 'ML201' },
@@ -245,7 +245,7 @@ const initializeSchedule = () => {
         }
       },
       [dayAfterStr]: {
-        '101': {
+        'CSE-101': {
           '09:00-10:00': { batchName: 'CS2024A', teacherName: 'Dr. Sarah Johnson', courseName: 'CS201' },
           '10:00-11:00': { batchName: 'CS2024A', teacherName: 'Dr. Sarah Johnson', courseName: 'CS301' },
           '11:00-12:00': null,
@@ -254,7 +254,7 @@ const initializeSchedule = () => {
           '15:00-16:00': null,
           '16:00-17:00': { batchName: 'MATH2024B', teacherName: 'Prof. Michael Chen', courseName: 'MATH101' }
         },
-        '102': {
+        'CSE-102': {
           '09:00-10:00': null,
           '10:00-11:00': { batchName: 'WEB2024A', teacherName: 'Dr. Lisa Wang', courseName: 'WEB201' },
           '11:00-12:00': { batchName: 'WEB2024A', teacherName: 'Dr. Lisa Wang', courseName: 'WEB301' },
@@ -263,7 +263,7 @@ const initializeSchedule = () => {
           '15:00-16:00': { batchName: 'DS2024A', teacherName: 'Dr. Maria Garcia', courseName: 'DS301' },
           '16:00-17:00': null
         },
-        '201': {
+        'CSE-201': {
           '09:00-10:00': { batchName: 'AI2024A', teacherName: 'Prof. Alex Rodriguez', courseName: 'AI201' },
           '10:00-11:00': null,
           '11:00-12:00': { batchName: 'AI2024A', teacherName: 'Prof. Alex Rodriguez', courseName: 'AI301' },
@@ -382,13 +382,29 @@ export function addBooking(
   timeSlot: TimeSlot, 
   bookingDetails: Omit<BookingDetails, 'id'>
 ): { success: boolean; error?: string; bookingId?: string } {
+  // Validate date format
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+    return { success: false, error: 'Invalid date format. Use YYYY-MM-DD' };
+  }
+
   // Validate date
   const bookingDate = new Date(date);
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   
-  if (bookingDate < today || bookingDate.getDay() === 0 || bookingDate.getDay() === 6) {
-    return { success: false, error: 'Invalid booking date. Must be a future weekday' };
+  // Check if date is valid
+  if (isNaN(bookingDate.getTime())) {
+    return { success: false, error: 'Invalid date' };
+  }
+  
+  // Check if date is in the past
+  if (bookingDate < today) {
+    return { success: false, error: 'Booking date cannot be in the past' };
+  }
+  
+  // Check if date is a weekend
+  if (bookingDate.getDay() === 0 || bookingDate.getDay() === 6) {
+    return { success: false, error: 'Bookings are only allowed on weekdays (Monday-Friday)' };
   }
 
   // Check for staff room

@@ -32,7 +32,7 @@ export default function DashboardLayout({
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-950 to-purple-950">
+    <div className="min-h-screen bg-image-overlay" style={{ backgroundImage: 'url(/images/background.jpg)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }}>
       <header className="border-b border-white/10 bg-black/20 backdrop-blur-sm">
         <div className="container mx-auto p-4">
           <div className="flex justify-between items-center">

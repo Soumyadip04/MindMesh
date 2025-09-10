@@ -3,7 +3,7 @@
 import { motion } from "framer-motion"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { RegisterForm } from "@/components/auth/register-form"
-import { GraduationCap, BookOpen, Users, Calendar, UserPlus } from "lucide-react"
+import { BookOpen, Users, Calendar, UserPlus } from "lucide-react"
 
 export default function RegisterPage() {
   return (

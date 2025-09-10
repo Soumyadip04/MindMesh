@@ -42,7 +42,7 @@ function transformScheduleData(schedule: DailySchedule, currentSlot: string): Fl
 
       const isStaff = isStaffRoom(roomNumber)
       // Student behavior: occupied/free strictly for the selected time slot (or staff room)
-      const bookingForSelected = (roomSchedule as any)[currentSlot as string] || null
+      const bookingForSelected = (roomSchedule as Record<string, BookingDetails | null>)[currentSlot as string] || null
       const isOccupiedAtSelected = isStaff || Boolean(bookingForSelected)
       
       return {
@@ -56,11 +56,11 @@ function transformScheduleData(schedule: DailySchedule, currentSlot: string): Fl
             }
           : bookingForSelected
             ? {
-                batchName: (bookingForSelected as any).batchName,
+                batchName: (bookingForSelected as BookingDetails).batchName,
                 timeSlot: '',
-                lectureName: (bookingForSelected as any).courseName || 'Lecture',
-                teacherName: (bookingForSelected as any).teacherName,
-                courseName: (bookingForSelected as any).courseName
+                lectureName: (bookingForSelected as BookingDetails).courseName || 'Lecture',
+                teacherName: (bookingForSelected as BookingDetails).teacherName,
+                courseName: (bookingForSelected as BookingDetails).courseName
               }
             : undefined
       }

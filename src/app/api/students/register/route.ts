@@ -20,7 +20,7 @@ function validateEmail(email: string): boolean {
   return emailRegex.test(email);
 }
 
-function validateRegistrationData(data: any): { isValid: boolean; errors: string[] } {
+function validateRegistrationData(data: unknown): { isValid: boolean; errors: string[] } {
   const errors: string[] = [];
 
   if (!data.name || typeof data.name !== 'string' || data.name.trim().length < 2) {

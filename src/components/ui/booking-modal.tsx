@@ -2,16 +2,11 @@
 
 import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { format } from 'date-fns'
-import { Calendar as CalendarIcon } from 'lucide-react'
-import { DayPicker } from 'react-day-picker'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from './dialog'
 import { Button } from './button'
 import { Label } from './label'
 import { Input } from './input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './select'
-import { Popover, PopoverContent, PopoverTrigger } from './popover'
-import { cn } from '@/lib/utils'
 import { TIME_SLOTS } from '@/lib/schedule-store'
 
 interface BookingModalProps {
