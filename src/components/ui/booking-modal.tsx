@@ -42,7 +42,7 @@ export function BookingModal({
   onSubmit,
   selectedRoom,
   isPending = false
-: BookingModalProps) {
+}: BookingModalProps) {
   const [currentStep, setCurrentStep] = useState(selectedRoom ? 1 : 0)
   const [isClient, setIsClient] = useState(false)
   const [formData, setFormData] = useState({
